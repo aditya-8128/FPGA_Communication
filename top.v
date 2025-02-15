@@ -9,7 +9,7 @@ module top (
     output wire spi_ce
 );
     wire [7:0] spi_tx_data, spi_rx_data;
-    wire spi_start, spi_busy;
+    wire spi_start, busy;
 
     nrf24l01_controller nrf_ctrl (
         .clk(clk),
@@ -19,7 +19,7 @@ module top (
         .spi_tx_data(spi_tx_data),
         .spi_start(spi_start),
         .spi_ce(spi_ce),
-        .spi_busy(spi_busy)
+        .busy(busy)
     );
 
     spi_master spi (
@@ -31,7 +31,9 @@ module top (
         .spi_sck(spi_sck),
         .spi_mosi(spi_mosi),
         .spi_csn(spi_csn),
-        .spi_miso(spi_miso)
+        .spi_miso(spi_miso),
+        .busy(busy)
     );
 
 endmodule
+

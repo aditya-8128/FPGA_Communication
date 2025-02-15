@@ -6,14 +6,15 @@ module nrf24l01_controller (
     output reg [7:0] spi_tx_data,
     output reg spi_start,
     output reg spi_ce,
-    input wire spi_busy
+    input wire busy // From SPI master
 );
-    reg [3:0] state;
+    // State machine states
+    localparam IDLE = 3'b000;
+    localparam CONFIGURE = 3'b001;
+    localparam TX_MODE = 3'b010;
+    localparam RX_MODE = 3'b011;
 
-    // State definitions
-    localparam IDLE       = 4'h0;
-    localparam CONFIGURE  = 4'h1;
-    localparam TX_MODE    = 4'h2;
+    reg [2:0] state;
 
     always @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -25,29 +26,38 @@ module nrf24l01_controller (
         end else begin
             case (state)
                 IDLE: begin
-                    if (!spi_busy) begin
-                        state <= CONFIGURE; // Start configuration process
+                    if (!busy) begin
+                        state <= CONFIGURE; // Start configuration process.
                     end
                 end
 
                 CONFIGURE: begin
-                   
-                    spi_tx_data <= 8'h08; 
+                 
+                    spi_tx_data <= 8'h08; // CONFIG register value.
                     spi_start <= 1;
 
-                    if (!spi_busy) begin
+                    if (!busy) begin
                         state <= TX_MODE; // Move to TX mode after configuration.
+                    end else begin
+                        spi_start <= 0; // Wait for SPI transaction to complete.
                     end
                 end
 
                 TX_MODE: begin
-                    // Example transmission logic:
+                  
                     nrf_out <= spi_rx_data; // Capture received data.
-                    state <= IDLE;          // Return to IDLE after transmission.
+                    state <= RX_MODE;       // Switch to RX mode.
+                end
+
+                RX_MODE: begin
+                    // Example reception logic:
+                    nrf_out <= spi_rx_data; // Process received data.
+                    state <= IDLE;          // Return to idle after processing.
                 end
 
                 default: state <= IDLE;
             endcase
         end
     end
+
 endmodule
