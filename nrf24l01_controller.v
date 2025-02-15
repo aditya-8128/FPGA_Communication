@@ -31,8 +31,8 @@ module nrf24l01_controller (
                 end
 
                 CONFIGURE: begin
-                    // Example configuration for NRF24L01 register setup:
-                    spi_tx_data <= 8'h08; // Example register value for CONFIG register.
+                   
+                    spi_tx_data <= 8'h08; 
                     spi_start <= 1;
 
                     if (!spi_busy) begin
