@@ -50,7 +50,7 @@ module nrf24l01_controller (
                 end
 
                 RX_MODE: begin
-                    // Example reception logic:
+                   
                     nrf_out <= spi_rx_data; // Process received data.
                     state <= IDLE;          // Return to idle after processing.
                 end
